@@ -1,11 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Knuth Arrow Calculator</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f9; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; width: 100%; }
+        h2 { color: #333; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; width: 100%; }
+        button:hover { background: #0056b3; }
+        #result { margin-top: 20px; padding: 15px; background: #e9ecef; border-left: 5px solid #007bff; word-wrap: break-word; }
+        .warning { font-size: 0.8em; color: #d9534f; margin-top: 10px; }
+    </style>
 </head>
 <body>
+
+<div class="card">
+    <h2>Knuth Arrow Calculator</h2>
+    <p>Simulasi tingkatan angka Graham ($a \uparrow^n b$)</p>
     
+    <div class="input-group">
+        <label>Angka Dasar (a):</label>
+        <input type="number" id="base" value="3">
+    </div>
+    <div class="input-group">
+        <label>Jumlah Anak Panah (n):</label>
+        <input type="number" id="arrows" value="2" placeholder="1 = pangkat, 2 = tetrasi...">
+    </div>
+    <div class="input-group">
+        <label>Iterasi (b):</label>
+        <input type="number" id="iterations" value="3">
+    </div>
+
+    <button onclick="calculate()">Hitung!</button>
+
+    <div id="result">Hasil akan muncul di sini...</div>
+    
+    <p class="warning">
+        *Catatan: Mengisi jumlah anak panah > 2 atau angka besar akan membuat browser hang/error karena angka melampaui kapasitas memori fisik.
+    </p>
+</div>
+
+<script>
+    function knuthArrow(a, n, b) {
+        // Basis: n=1 adalah pemangkatan biasa (a^b)
+        if (n === 1) return Math.pow(a, b);
+        
+        // Basis: Jika b=0, hasilnya 1
+        if (b === 0) return 1;
+
+        // Rekursi: a ↑^n b = a ↑^(n-1) (a ↑^n (b-1))
+        // Kita gunakan BigInt jika memungkinkan, tapi Math.pow lebih simpel untuk demo
+        return knuthArrow(a, n - 1, knuthArrow(a, n, b - 1));
+    }
+
+    function calculate() {
+        const a = parseInt(document.getElementById('base').value);
+        const n = parseInt(document.getElementById('arrows').value);
+        const b = parseInt(document.getElementById('iterations').value);
+        const resDiv = document.getElementById('result');
+
+        resDiv.innerHTML = "Menghitung...";
+
+        // Proteksi sederhana agar browser tidak crash seketika
+        if (n > 3 || (n === 3 && b > 2) || (n === 2 && b > 4)) {
+            resDiv.innerHTML = "<strong>Error:</strong> Angka terlalu besar! Ini akan membuat browser kamu 'pingsan'. Graham's Number tidak bisa divisualisasikan secara utuh.";
+            return;
+        }
+
+        try {
+            const hasil = knuthArrow(a, n, b);
+            resDiv.innerHTML = `Hasil dari ${a} ↑<sup>${n}</sup> ${b} adalah: <br><strong>${hasil.toLocaleString('id-ID')}</strong>`;
+        } catch (e) {
+            resDiv.innerHTML = "<strong>Stack Overflow:</strong> Rekursi terlalu dalam!";
+        }
+    }
+</script>
+
 </body>
-</html>
+</html>   
